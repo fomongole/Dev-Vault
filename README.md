@@ -47,6 +47,6 @@
 ## 📚 API Documentation
 -  DevVault includes a fully interactive Swagger UI..
 - Start the server.
-- Visit http://localhost:3000/api in your browser.
+- Visit https://dev-vault-n8pu.onrender.com/api in your browser.
 
 You can test all endpoints (Auth, Snippets, Tags) directly from the interface.
