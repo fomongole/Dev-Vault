@@ -1,0 +1,10 @@
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+export const GetUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext) => {
+    const request = ctx.switchToHttp().getRequest();
+    return request.user; // This comes from JwtStrategy.validate()
+  },
+);
+
+// Instead of writing req.user every time, we can use @GetUser(). This is much cleaner.
