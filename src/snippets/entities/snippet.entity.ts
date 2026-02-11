@@ -40,6 +40,9 @@ export class Snippet {
   })
   visibility: SnippetVisibility;
 
+  @Column({ default: false })
+  isPinned: boolean;
+
   // Tags (Stored as "tag1,tag2" in DB, returned as array in JSON)
   @Column({
     type: 'simple-array',

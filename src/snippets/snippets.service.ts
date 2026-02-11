@@ -41,7 +41,7 @@ export class SnippetsService {
   }
 
   // 3. Find All MY Snippets (Dashboard Mode)
-  // Returns my Private AND Public snippets
+  // Returns my Private AND Public snippets, prioritized by Pinned status
   async findAllByUser(user: User, tag?: string): Promise<Snippet[]> {
     const query = this.snippetRepository.createQueryBuilder('snippet')
       .leftJoinAndSelect('snippet.user', 'user')
@@ -51,7 +51,11 @@ export class SnippetsService {
       query.andWhere('snippet.tags LIKE :tag', { tag: `%${tag}%` });
     }
 
-    return await query.orderBy('snippet.createdAt', 'DESC').getMany();
+    // Sort by isPinned DESC (true first) and then by date
+    return await query
+      .orderBy('snippet.isPinned', 'DESC')
+      .addOrderBy('snippet.createdAt', 'DESC')
+      .getMany();
   }
 
   // 4. Find One (Secure Access)

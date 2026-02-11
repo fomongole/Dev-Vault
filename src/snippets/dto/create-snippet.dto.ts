@@ -1,5 +1,6 @@
 import {
   IsArray,
+  IsBoolean,
   IsEnum,
   IsNotEmpty,
   IsOptional,
@@ -47,6 +48,15 @@ export class CreateSnippetDto {
   @IsEnum(SnippetVisibility)
   @IsOptional()
   visibility?: SnippetVisibility;
+
+  @ApiProperty({
+    example: false,
+    description: 'Pin the snippet to the top of the dashboard',
+    required: false,
+  })
+  @IsBoolean()
+  @IsOptional()
+  isPinned?: boolean;
 
   @ApiProperty({
     example: ['algorithm', 'sort', 'javascript'],
