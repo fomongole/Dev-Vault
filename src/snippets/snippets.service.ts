@@ -10,6 +10,16 @@ import { CreateSnippetDto } from './dto/create-snippet.dto';
 import { UpdateSnippetDto } from './dto/update-snippet.dto';
 import { User } from '../users/entities/user.entity';
 
+// a standard paginated response interface
+export interface PaginatedResult<T> {
+  data: T[];
+  meta: {
+    total: number;
+    page: number;
+    lastPage: number;
+  };
+}
+
 @Injectable()
 export class SnippetsService {
   constructor(
@@ -26,8 +36,13 @@ export class SnippetsService {
     return await this.snippetRepository.save(snippet);
   }
 
-  // Supports filtering by ?tag=react
-  async findAllPublic(tag?: string): Promise<Snippet[]> {
+  // 2. Find Public Snippets (Paginated)
+  // Supports filtering by ?tag=react&page=1&limit=10
+  async findAllPublic(
+    tag?: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedResult<Snippet>> {
     const query = this.snippetRepository.createQueryBuilder('snippet')
       .leftJoinAndSelect('snippet.user', 'user') // Include author info
       .where('snippet.visibility = :public', { public: SnippetVisibility.PUBLIC });
@@ -37,12 +52,29 @@ export class SnippetsService {
       query.andWhere('snippet.tags LIKE :tag', { tag: `%${tag}%` });
     }
 
-    return await query.orderBy('snippet.createdAt', 'DESC').getMany();
+    // Pagination Logic
+    query.skip((page - 1) * limit).take(limit);
+
+    const [data, total] = await query.orderBy('snippet.createdAt', 'DESC').getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
-  // 3. Find All MY Snippets (Dashboard Mode)
+  // 3. Find All MY Snippets (Paginated Dashboard Mode)
   // Returns my Private AND Public snippets, prioritized by Pinned status
-  async findAllByUser(user: User, tag?: string): Promise<Snippet[]> {
+  async findAllByUser(
+    user: User,
+    tag?: string,
+    page: number = 1,
+    limit: number = 10,
+  ): Promise<PaginatedResult<Snippet>> {
     const query = this.snippetRepository.createQueryBuilder('snippet')
       .leftJoinAndSelect('snippet.user', 'user')
       .where('snippet.user.id = :userId', { userId: user.id });
@@ -51,11 +83,23 @@ export class SnippetsService {
       query.andWhere('snippet.tags LIKE :tag', { tag: `%${tag}%` });
     }
 
+    // Pagination Logic
+    query.skip((page - 1) * limit).take(limit);
+
     // Sort by isPinned DESC (true first) and then by date
-    return await query
+    const [data, total] = await query
       .orderBy('snippet.isPinned', 'DESC')
       .addOrderBy('snippet.createdAt', 'DESC')
-      .getMany();
+      .getManyAndCount();
+
+    return {
+      data,
+      meta: {
+        total,
+        page,
+        lastPage: Math.ceil(total / limit),
+      },
+    };
   }
 
   // 4. Find One (Secure Access)
