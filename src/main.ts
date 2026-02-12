@@ -22,9 +22,9 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Strips properties that don't exist in the DTO
-      forbidNonWhitelisted: true, // Throws an error if extra properties are sent
-      transform: true, // Auto-transforms payloads to DTO instances
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 
@@ -35,7 +35,7 @@ async function bootstrap() {
     .setTitle('DevVault API')
     .setDescription('The secure code snippet manager API')
     .setVersion('1.0')
-    .addBearerAuth() // Adds the "Authorize" button for JWT
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

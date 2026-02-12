@@ -10,7 +10,7 @@ import { CreateSnippetDto } from './dto/create-snippet.dto';
 import { UpdateSnippetDto } from './dto/update-snippet.dto';
 import { User } from '../users/entities/user.entity';
 
-// a standard paginated response interface
+// A standard paginated response interface
 export interface PaginatedResult<T> {
   data: T[];
   meta: {
@@ -44,7 +44,7 @@ export class SnippetsService {
     limit: number = 10,
   ): Promise<PaginatedResult<Snippet>> {
     const query = this.snippetRepository.createQueryBuilder('snippet')
-      .leftJoinAndSelect('snippet.user', 'user') // Include author info
+      .leftJoinAndSelect('snippet.user', 'user')
       .where('snippet.visibility = :public', { public: SnippetVisibility.PUBLIC });
 
     if (tag) {
